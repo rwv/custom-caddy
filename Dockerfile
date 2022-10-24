@@ -11,11 +11,9 @@ RUN go mod download
 
 COPY . $GOPATH/src/github.com/rwv/custom-caddy
 
-RUN go build -ldflags="-s -w" -o /caddy
+RUN go build -o /usr/bin/caddy
 
 # Second Stage
-FROM alpine
+FROM caddy:latest
 
-COPY --from=builder /caddy /caddy
-
-CMD ["/caddy"]
+COPY --from=builder /usr/bin/caddy /usr/bin/caddy
