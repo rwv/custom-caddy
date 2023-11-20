@@ -1,19 +1,11 @@
-FROM golang:alpine AS builder
+ARG CADDY_VERSION=2.7.5
 
-RUN apk --no-cache add git ca-certificates
+FROM caddy:${CADDY_VERSION}-builder AS builder
 
-WORKDIR $GOPATH/src/github.com/rwv/custom-caddy
+RUN xcaddy build \
+    --with github.com/caddy-dns/cloudflare \
+    --with github.com/ss098/certmagic-s3
 
-COPY go.mod ./
-COPY go.sum ./
-
-RUN go mod download
-
-COPY . $GOPATH/src/github.com/rwv/custom-caddy
-
-RUN go build -o /usr/bin/caddy
-
-# Second Stage
-FROM caddy:latest
+FROM caddy:${CADDY_VERSION}
 
 COPY --from=builder /usr/bin/caddy /usr/bin/caddy
